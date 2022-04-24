@@ -15,11 +15,11 @@ def create_app(test_config=None):
     app = Flask(__name__)
     CORS(app)
 
+    setup_db(app)
+    # db_drop_and_create_all() # if you uncomment this line, it'll create a new database on app refresh. 
+
     db = SQLAlchemy(app)
     migrate = Migrate(app, db)
-
-    setup_db(app)
-    # db_drop_and_create_all()
 
     # CORS Headers
     @app.after_request
@@ -270,4 +270,4 @@ def create_app(test_config=None):
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
