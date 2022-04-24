@@ -16,7 +16,8 @@ def create_app(test_config=None):
     CORS(app)
 
     setup_db(app)
-    # db_drop_and_create_all() # if you uncomment this line, it'll create a new database on app refresh. 
+    # To create a new database on app refresh uncomment the below line.
+    # db_drop_and_create_all()
 
     db = SQLAlchemy(app)
     migrate = Migrate(app, db)
@@ -35,7 +36,7 @@ def create_app(test_config=None):
         return jsonify(
                     {
                         "success": True,
-                        "message": "Testing Success"
+                        "message": "Applicaion is up and running"
                     }
             )
 
@@ -91,7 +92,7 @@ def create_app(test_config=None):
 
     @app.route('/movies', methods=['POST'])
     @requires_auth('post:movies')
-    # def post_movies(payload):
+    # This method is used to post a movie to the system
     def post_movies(payload):
         # get data in the request body
         body = request.get_json()
@@ -115,7 +116,7 @@ def create_app(test_config=None):
 
     @app.route('/actors', methods=['POST'])
     @requires_auth('post:actors')
-    # def post_actors(payload):
+    # This method is used to post an actor to the system
     def post_actors(payload):
         # get data in the request body
         body = request.get_json()
@@ -145,7 +146,7 @@ def create_app(test_config=None):
 
     @app.route("/movies/<int:id>", methods=["PATCH"])
     @requires_auth('patch:movies')
-    # def update_movie(payload, id):
+    # This method is used to update an existing movie
     def update_movie(payload, id):
         body = request.get_json()
         if body is None:

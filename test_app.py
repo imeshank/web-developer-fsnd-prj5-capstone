@@ -37,15 +37,22 @@ class CinemaTestCase(unittest.TestCase):
         """Executed after reach test"""
         pass
 
-    def test_function(self):
+    def test_app(self):
         res = self.client().get("/")
         data = json.loads(res.data)
-        # print(data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
         self.assertTrue(data["message"])
-        self.assertEqual(data["message"], "Testing Success")
+        self.assertEqual(data["message"], "Applicaion is up and running")
+
+    def test_app_fail(self):
+        res = self.client().get("/2")
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data["success"], False)
+        self.assertTrue(data["message"], "resource not found")
 
     # -- Testing all API end points as executive_producer as he has full permission to access the API --#
 
