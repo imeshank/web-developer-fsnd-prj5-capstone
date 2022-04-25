@@ -1,9 +1,19 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import (
+    Flask,
+    request,
+    abort,
+    jsonify
+)
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-from models import setup_db, Movie, Actor, db_drop_and_create_all
+from models import (
+    setup_db,
+    Movie,
+    Actor,
+    db_drop_and_create_all
+)
 from auth import AuthError, requires_auth
 
 from flask_migrate import Migrate
@@ -17,7 +27,7 @@ def create_app(test_config=None):
 
     setup_db(app)
     # To create a new database on app refresh uncomment the below line.
-    # db_drop_and_create_all()
+    db_drop_and_create_all()
 
     db = SQLAlchemy(app)
     migrate = Migrate(app, db)
@@ -96,8 +106,8 @@ def create_app(test_config=None):
     def post_movies(payload):
         # get data in the request body
         body = request.get_json()
-        new_name = body.get("name", None)
-        new_genre = body.get("genre", None)
+        new_name = body.get("name")
+        new_genre = body.get("genre")
 
         if new_name is None:
             abort(422)
@@ -120,10 +130,10 @@ def create_app(test_config=None):
     def post_actors(payload):
         # get data in the request body
         body = request.get_json()
-        new_name = body.get("name", None)
-        new_experience_level = body.get("experience_level", None)
-        new_gender = body.get("gender", None)
-        new_age = body.get("age", None)
+        new_name = body.get("name")
+        new_experience_level = body.get("experience_level")
+        new_gender = body.get("gender")
+        new_age = body.get("age")
 
         if new_name is None:
             abort(422)
