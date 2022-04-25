@@ -27,7 +27,7 @@ def create_app(test_config=None):
 
     setup_db(app)
     # To create a new database on app refresh uncomment the below line.
-    db_drop_and_create_all()
+    # db_drop_and_create_all()
 
     db = SQLAlchemy(app)
     migrate = Migrate(app, db)
