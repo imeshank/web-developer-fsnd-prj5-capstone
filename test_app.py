@@ -27,9 +27,11 @@ class CinemaTestCase(unittest.TestCase):
         self.update_movie_id = '1'
         self.delete_movie_id = '1'
         # JWT token for executive producer
-        self.executive_producer_header = {'Authorization': os.environ.get('EXECUTIVE_PRODUCER_JWT')}
+        self.executive_producer_header = {
+            'Authorization': os.environ.get('EXECUTIVE_PRODUCER_JWT')}
         # JWT token for casting assistant
-        self.casting_assistant_header = {'Authorization': os.environ.get('CASTING_ASSISTANT_JWT')}
+        self.casting_assistant_header = {
+            'Authorization': os.environ.get('CASTING_ASSISTANT_JWT')}
 
     def tearDown(self):
         """Executed after reach test"""
@@ -52,7 +54,7 @@ class CinemaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertTrue(data["message"], "resource not found")
 
-    # -- Testing all API end points as executive_producer as he has full permission to access the API --#
+    # --Testing all API end points as executive_producer as he has full permission to access the API--#
 
     def test_get_movies(self):
         res = self.client().get("/movies", headers=self.executive_producer_header)

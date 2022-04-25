@@ -6,6 +6,15 @@ The Casting Agency models a company that is responsible for creating movies and 
 2) API includes 6 endpoints  
 3) Two job roles(Casting Assistant and Executive Producer) can access the API and each role has different permissions. 
 
+### Project motivation  
+This is the final project of the Udacity full stack nanodegree. I developed this project to make use of the knowledge I acquired in this nanodegree. Following technoligies were used in this project and by developing this project I gained confidence on using these skills on real-world projects.  
+
+1) Postgres and Sqlalchemy - database modelling
+2) Flask - develop web API to perform CRUD operations on database
+3) Unittest - implement automated testing
+4) Auth0 - implement authorization and role based authentification
+5) Heroku - cloud platform used to deploy the web application to cloud
+
 Application is hosted at: https://imesha-fsnd-cinema.herokuapp.com/ 
 
 ## Getting Started - Running project locally
@@ -22,6 +31,10 @@ Follow instructions to install the latest version of python for your platform in
 
 Follow instructions to install the latest version of postgres for your platform in the [postgresql](https://www.postgresql.org/download/)
 
+#### Heroku 7.60.1
+
+Follow instructions to install the latest version of Heroku CLI for your platform in the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
+
 
 #### Virtual Environment
 
@@ -32,7 +45,7 @@ Instructions for setting up a virtual environment for your platform can be found
 Once you have your virtual environment setup and running, install dependencies by running the following code.
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 This will install all of the required packages.
@@ -53,7 +66,7 @@ example:
 create database cinemadb;
 ```
 * Set up environment variables.   
-1) Update the database URL in the setup.sh.
+1) Update the database URL in the setup.sh  
 Database URL format: 
 ``` 
 DATABASE_URL={username}:{password}@{host}:{port}/{database_name}
@@ -68,11 +81,18 @@ chmod +x setup.sh
 source setup.sh
 ```
 ### Running the server
-To run the server in the development mode use following commands:
-
+To run the server in the development mode use following commands:  
+Linux environment:
 ``` bash
 export FLASK_APP=app.py
 export FLASK_ENV=development
+flask run
+```
+
+Windows environment:
+```cmd
+set FLASK_APP=app.py
+set FLASK_ENV=development
 flask run
 ```
 
@@ -88,7 +108,7 @@ To implement authorization and role based authentication you are adviced to use 
    - in API Settings:
      - Enable RBAC
      - Enable Add Permissions in the Access Token  
-5. Update 'AUTH0_DOMAIN'(ex:cinemaproject.us.auth0.com), 'ALGORITHMS'(ex:RS256) and, 'API_AUDIENCE'(ex:cineapi) values in the auth.py file.  
+5. Update 'AUTH0_DOMAIN'(ex:cinemaproject.us.auth0.com), 'ALGORITHMS'(ex:RS256) and, 'API_AUDIENCE'(ex:cineapi) values in the setup.sh file. These values are used in the auth.py file.  
 6. Create new API permissions: (API -> permissions tab)   
     -`get:movies`  
     -`get:actors`  
@@ -104,12 +124,99 @@ To implement authorization and role based authentication you are adviced to use 
         - can perform all actions
 8. Register two users (User Management -> Users) in Auth0 account. Assign Casting Assistant and Executive Producer roles to each user.
 9. Sign in to each account and make note of the JWT.
-10. Update JWT token(obtained from the above step) values in the test_app.py for each role. 
+10. Update JWT token(obtained from the above step) values in the setup.sh for each role. These tokens are used in the test_app.py file for automated testing. 
 11. API tests can run using the below command:
 ```
 python test_app.py
 ```
 12. You can use [Postman](https://www.postman.com/) to test API endpoints. (make sure to add the JWT token in the authorization tab)
+
+### Deploying the web app in cloud
+To deploy the above web app in cloud we use Heroku as the cloud platform. Steps to deploy the web app in cloud are as follows: (Assumption: Heroku CLI is already installed in your local machine)
+
+1) login to heroku in the terminal  
+```
+heroku login -i
+```
+2) Run local db migrations  
+    ```
+    flask db init
+    flask db migrate -m "Initial migration."
+    ```
+    This will create the migration folder in the folder structure and migration scripts inside versions folder.  
+3) Initialize Git
+```
+git init
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+```
+4) Create an app in Heroku cloud
+```
+heroku create [my-app-name] --buildpack heroku/python
+```
+example:
+```
+heroku create imesha-fsnd-cinema --buildpack heroku/python
+```
+5) Check the Heroku dashboard in the browser and see that new application has created with the name that you have given in the above command(ex: imesha-fsnd-cinema). [Heroku dashboard](https://dashboard.heroku.com/apps)
+6) Add PostgreSQL addon for our database
+```
+heroku addons:create heroku-postgresql:hobby-dev --app [my-app-name]
+```
+example:
+```
+heroku addons:create heroku-postgresql:hobby-dev --app imesha-fsnd-cinema
+```
+7) Configure the APP
+* To get the DATABASE_URL run the below command:
+```
+heroku config --app [my-app-name]
+```
+example:
+```
+heroku config --app imesha-fsnd-cinema
+```
+* Copy the DATABASE_URL generated from the step above, and update your local DATABASE_URL environment variable using below command:
+```
+export DATABASE_URL="[DATABASE_URL-output from the above step]"
+```
+* Go to Heroku dashboard >> [Your APP] >> Settings >> Reveal Config Vars and add below variable names and their corresponding values.
+
+| Config Vars | Example Values |  
+| :---:       | :---:  |  
+|ALGORITHMS   | ['RS256'] |
+|API_AUDIENCE | cineapi |
+|AUTH0_DOMAIN | cinemaproject.us.auth0.com |  
+|DATABASE_URL | postgres://bazjwucweyadii:c0159...|
+|EXCITED      | true |
+|CASTING_ASSISTANT_JWT | Bearer eyJhbGciOiJSUzI1NiIsInR5cCI..|  
+|EXECUTIVE_PRODUCER_JWT | Bearer eyJhbGciOiJSUzI1NiIsIn... | 
+|            |               |  
+
+8) Push the app to Heroku
+* Commit the changes:
+```
+git add -A
+git status
+git commit -m "your message"
+```
+* Push the app to Heroku. This will trigger a heroku build automatically.
+```
+git push heroku main
+```
+* Migrate the database
+```
+heroku run python manage.py db upgrade --app [my-app-name]
+```
+example:
+```
+heroku run python manage.py db upgrade --app imesha-fsnd-cinema
+```  
+__Note: Each time when you make a change to your application you need to repeat this step__
+
+9) Open the application from your Heroku Dashboard. Now you have a live application!
+10) You can use [Postman](https://www.postman.com/) to test your live application. Application logs can view inside the heroku browser.
+
 
 ## API Reference
 
@@ -122,12 +229,12 @@ This API is up and running on the Heroku.
 
     ```
     1) Executive Producer-  
-    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkEwTUZHWU0wakhoZmpDbDZnd3dGNSJ9.eyJpc3MiOiJodHRwczovL2NpbmVtYXByb2plY3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDYyNWNiYTZkNzBhMTgyMDA2OWQyYmM0ZCIsImF1ZCI6ImNpbmVhcGkiLCJpYXQiOjE2NTA3NzAwODYsImV4cCI6MTY1MDg1NjQ4NiwiYXpwIjoiWmJKRXZSZ0RabGNtNndDRFZONEtrc0lDMWJ1Sm1CazgiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImRlbGV0ZTptb3ZpZXMiLCJnZXQ6YWN0b3JzIiwiZ2V0Om1vdmllcyIsInBhdGNoOm1vdmllcyIsInBvc3Q6YWN0b3JzIiwicG9zdDptb3ZpZXMiXX0.A-WcMFg7vpM2dMNC6zl8yYZwfbeC1ked8y8VQF40lV3TXnqnKQoyS6Sz5YYple73cOIqmvIMBy46HZz7wlfErXT8rhsTUcNwpeMjbrGlXQhW4j66OYlPSOc40xjETI1OdDCmwS-9z-HkUN-VqeK9nl0YGkzeHH2_NPelrqR6CD531UmQFiyaf1mJYRYLMN3cUIeD3EcfGEEm_d50z_xkCUbYQ-vFIuKjqAardpYipTsDyfH5fUI3qH2AKLKj04UTpTz6khmmGE-KDAWeM3aYmS7v9yUCBnxB1TLv8JJCpD6Y4dDp0nTNKglEGF53yPQ-q5h13R7bf0pVcrp2bqnzHQ
+    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkEwTUZHWU0wakhoZmpDbDZnd3dGNSJ9.eyJpc3MiOiJodHRwczovL2NpbmVtYXByb2plY3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDYyNWNiYTZkNzBhMTgyMDA2OWQyYmM0ZCIsImF1ZCI6ImNpbmVhcGkiLCJpYXQiOjE2NTA4NjkzMzcsImV4cCI6MTY1MDk1NTczNywiYXpwIjoiWmJKRXZSZ0RabGNtNndDRFZONEtrc0lDMWJ1Sm1CazgiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImRlbGV0ZTptb3ZpZXMiLCJnZXQ6YWN0b3JzIiwiZ2V0Om1vdmllcyIsInBhdGNoOm1vdmllcyIsInBvc3Q6YWN0b3JzIiwicG9zdDptb3ZpZXMiXX0.uw_VWlW1PXJoeXVGT1fuBAHX_e-5NP1UokKyrXg0kwXI1ic2vEd6oUu5WrCJh2jRkZ3YhK8TvlS8tvDdsmFVgnijc_eCFDu_KuJKIg6wenm2sqviAkAROQwl8g6VptxQQ3_HxIzo2TH44923_AEb0gZKh1s-aM84sgBzyn_ThywnlfL8AoP9ticM_lW3cFzfA5xRzplMdsIfS4ByWMd83Vi8AgbmfT6fvDg7XFN85hj7DWNXThNAxv1x7rTpoezbTm1yZ7I0X2ZhsaxAhES_Q_E11OsjNIujWyzSh1jwLQGWrYl-NmLnAs9y0BysjGiTAomtvKIihONAbkwTawvOQw
     ```  
 
     ```
     2) Casting Assistant -  
-    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkEwTUZHWU0wakhoZmpDbDZnd3dGNSJ9.eyJpc3MiOiJodHRwczovL2NpbmVtYXByb2plY3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDYyNWNiOWUwN2QzOThkMDA2Zjk0NmFiNyIsImF1ZCI6ImNpbmVhcGkiLCJpYXQiOjE2NTA3NzAxOTEsImV4cCI6MTY1MDg1NjU5MSwiYXpwIjoiWmJKRXZSZ0RabGNtNndDRFZONEtrc0lDMWJ1Sm1CazgiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIl19.kiwCA2seGQEyPbl0X4wDMuxjXDlJ57a2VP7_0fiYc5JtJxfVvkzneQDgy6N5gv2qDQvWcjkzppSLYlXclAY7mTrobADy0BizA_nneRqtv_cjHbIX1A-ijfIX3Wvly4uL4__XPqZwQ_hpNTfXq-kD90kdT5_R90n9q56KRL27rXxU7JbbB_iB_r8JXcEnDJ8VnTxNCH4ghTHBGAu1ACiSzrrsKXdOzKecldVjuxBcH373qC09M6J6BZUvJBnsz2LF0itiFFs4KWqrLQGyhIjaAvs_j_mutTNAQOO7d-LVc51kw78AdfHPyobJ6WlaV5B50cIxiviG4ADDvCKVwPoCdw
+    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkEwTUZHWU0wakhoZmpDbDZnd3dGNSJ9.eyJpc3MiOiJodHRwczovL2NpbmVtYXByb2plY3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDYyNWNiOWUwN2QzOThkMDA2Zjk0NmFiNyIsImF1ZCI6ImNpbmVhcGkiLCJpYXQiOjE2NTA4Njk0NjQsImV4cCI6MTY1MDk1NTg2NCwiYXpwIjoiWmJKRXZSZ0RabGNtNndDRFZONEtrc0lDMWJ1Sm1CazgiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIl19.hB9SYZDwHwHTWFxbfUjhjq7jMmwg25t7TCRqiJMTMaBUddo8iCQ-cldTaDjLmRhaWALz2y2Vt0bji1UFtW_CtfVD_Xv-Ba1ffShypgTrJukgVzI08wUcrVpkk7fE1LPKFzaE9QkLwxEQ8_ijpeJfGmAjXy8E7hvdWal9C_OY4h3Vd95F72qUZtMiYECQg5g56uj0jMWQbEejuFh44jw0WDTOTDP3P2gaBZNuBBCupoTuV09RTxXAYNf4SijJYEQ50nBlubQufjPlFafkoZoG8vN1BpZ-baj-cdIQ92-L0cKZ21n4pckAfXhrZyoxnxrVM1S1O_Mh4MRoiBVJRxpDDA
     ```
 
 ### Error Handling
